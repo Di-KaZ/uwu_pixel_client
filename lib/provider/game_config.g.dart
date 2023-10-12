@@ -25,7 +25,7 @@ Map<String, dynamic> _$GameConfigToJson(GameConfig instance) =>
 // RiverpodGenerator
 // **************************************************************************
 
-String _$gameConfigHash() => r'6a5d3194f65ed27b012fa5d9631f03f65a6792da';
+String _$gameConfigHash() => r'f25ce293f9084fbdd1a3906eaf31799e2bd8074b';
 
 /// See also [gameConfig].
 @ProviderFor(gameConfig)

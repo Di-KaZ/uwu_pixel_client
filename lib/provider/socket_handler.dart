@@ -12,9 +12,8 @@ part 'socket_handler.g.dart';
 @immutable
 @JsonSerializable()
 class Pixel {
-  const Pixel(this.id, this.x, this.y, this.color);
+  const Pixel(this.x, this.y, this.color);
 
-  final int? id;
   final int x;
   final int y;
   final String color;
@@ -29,29 +28,26 @@ final socketHandlerProvider =
 });
 
 class SocketHandler extends StateNotifier<List<Pixel>> {
-  final uri = Uri.parse('ws://localhost:8080/board_update');
+  final uri = Uri.parse('ws://localhost:8080/update');
   late final channel = WebSocketChannel.connect(uri);
 
   void _handleServerMessage(dynamic data) {
-    print('_handling socket message');
     if (data is String) {
       try {
         final newPixel = Pixel.fromJson(jsonDecode(data));
 
-        final existingPixelIndex = state.indexWhere((p) => p.id == newPixel.id);
+        final existingPixelIndex =
+            state.indexWhere((p) => p.x == newPixel.x && p.y == newPixel.y);
 
         if (existingPixelIndex != -1) {
-          print('pixel is existing');
           state = List.from(state)
             ..replaceRange(
                 existingPixelIndex, existingPixelIndex + 1, [newPixel]);
         } else {
-          print('pixel is not existing');
           state = List.from(state)..add(newPixel);
         }
       } catch (e) {
         print(e);
-        log('unable to read pixel coordinate');
       }
     }
   }
