@@ -7,7 +7,7 @@ part of 'socket_handler.dart';
 // **************************************************************************
 
 Pixel _$PixelFromJson(Map<String, dynamic> json) => Pixel(
-      json['id'] as int,
+      json['id'] as int?,
       json['x'] as int,
       json['y'] as int,
       json['color'] as String,

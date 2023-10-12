@@ -34,20 +34,24 @@ class SocketHandler extends StateNotifier<List<Pixel>> {
   late final channel = WebSocketChannel.connect(uri);
 
   void _handleServerMessage(dynamic data) {
+    print('_handling socket message');
     if (data is String) {
       try {
         final newPixel = Pixel.fromJson(jsonDecode(data));
 
-        final existingPixelIndex =
-            state.indexWhere((element) => element.id == newPixel.id);
+        final existingPixelIndex = state.indexWhere((p) => p.id == newPixel.id);
 
         if (existingPixelIndex != -1) {
-          state = state
-            ..replaceRange(existingPixelIndex, existingPixelIndex, [newPixel]);
+          print('pixel is existing');
+          state = List.from(state)
+            ..replaceRange(
+                existingPixelIndex, existingPixelIndex + 1, [newPixel]);
+        } else {
+          print('pixel is not existing');
+          state = List.from(state)..add(newPixel);
         }
-
-        state = state..add(newPixel);
       } catch (e) {
+        print(e);
         log('unable to read pixel coordinate');
       }
     }
@@ -58,6 +62,7 @@ class SocketHandler extends StateNotifier<List<Pixel>> {
   }
 
   void colorPixel(Pixel pixel) {
+    print('sending pixel ${pixel.toJson()}');
     channel.sink.add(jsonEncode(pixel.toJson()));
   }
 }
