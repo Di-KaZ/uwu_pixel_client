@@ -1,4 +1,13 @@
 # uwu_pixel_client
 
+![demo](assets/demo.gif)
 
-![demo](assets/demo.mp4)
+
+
+# Windows user
+you need to swap out the line
+#m Run the project
+
+```
+flutter run
+```

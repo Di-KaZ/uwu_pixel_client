@@ -25,14 +25,9 @@ extension HexColor on Color {
       '${blue.toRadixString(16).padLeft(2, '0')}';
 }
 
-void main() {
-  runApp(const ProviderScope(child: App()));
-}
-
 class App extends StatelessWidget {
   const App({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -43,24 +38,6 @@ class App extends StatelessWidget {
       ),
       home: const Game(title: 'uwu pixel'),
     );
-  }
-}
-
-class Loader extends StatelessWidget {
-  const Loader({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: CircularProgressIndicator());
-  }
-}
-
-class MyWidget extends StatelessWidget {
-  const MyWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
   }
 }
 
@@ -78,8 +55,12 @@ class Game extends ConsumerWidget {
       ),
       body: config.when(
         data: (config) => GameBoard(config: config),
-        error: (_, __) => const Loader(),
-        loading: () => const Loader(),
+        error: (_, __) => const Center(
+          child: Text('an error occured please relaunch app'),
+        ),
+        loading: () => const Center(
+          child: CircularProgressIndicator(),
+        ),
       ),
     );
   }
@@ -95,20 +76,20 @@ class GameBoard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final socketHandler = ref.watch(socketHandlerProvider.notifier);
     final pixels = ref.watch(socketHandlerProvider);
-    final pickedColor = useState(Color(0xffff0000));
+    final pickedColor = useState(const Color(0xffff0000));
 
     void colorPixelAt(TapUpDetails details) {
       final canvaSize = canvasKey.currentContext!.size;
 
       final cellSize =
           min(canvaSize!.width / config.width, canvaSize.height / config.height)
-              .floor();
+              .floor()
+              .toDouble();
 
       RenderBox renderBox = context.findRenderObject() as RenderBox;
 
       Offset tapPositionInCanva =
           renderBox.globalToLocal(details.globalPosition);
-
       final pixelX = (tapPositionInCanva.dx / cellSize).floor();
       final pixelY = (tapPositionInCanva.dy / cellSize).floor();
       socketHandler
@@ -144,6 +125,7 @@ class GameBoard extends HookConsumerWidget {
   }
 }
 
+/// Custom painter to render pixels keeping aspect ratio with some math
 class GameBoardPainter extends CustomPainter {
   final List<Pixel> pixels;
   final GameConfig config;
@@ -158,12 +140,25 @@ class GameBoardPainter extends CustomPainter {
 
     for (final pixel in pixels) {
       canvas.drawRect(
-          Rect.fromLTWH(
-              pixel.x * cellSize, pixel.y * cellSize, cellSize, cellSize),
-          Paint()..color = HexColor.fromHex(pixel.color));
+        Rect.fromLTWH(
+          pixel.x * cellSize, // x
+          pixel.y * cellSize, // y
+          cellSize,
+          cellSize,
+        ),
+        Paint()..color = HexColor.fromHex(pixel.color),
+      );
     }
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+void main() {
+  runApp(
+    const ProviderScope(
+      child: App(),
+    ),
+  );
 }
