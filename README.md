@@ -3,11 +3,10 @@
 ![demo](assets/demo.gif)
 
 
-
-# Windows user
-you need to swap out the line
-#m Run the project
+# Run the project
 
 ```
-flutter run
+flutter pub get
+dart run build_runner build
+flutter run # --release if you want
 ```
