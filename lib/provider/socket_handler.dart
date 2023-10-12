@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -64,5 +63,9 @@ class SocketHandler extends StateNotifier<List<Pixel>> {
   void colorPixel(Pixel pixel) {
     print('sending pixel ${pixel.toJson()}');
     channel.sink.add(jsonEncode(pixel.toJson()));
+  }
+
+  void init(List<Pixel> pixels) {
+    state = pixels;
   }
 }

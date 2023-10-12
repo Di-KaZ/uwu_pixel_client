@@ -24,5 +24,7 @@ class GameConfig {
 @riverpod
 Future<GameConfig> gameConfig(GameConfigRef ref) async {
   final res = await http.get(Uri.parse('http://localhost:8080/initial_load'));
-  return GameConfig.fromJson(jsonDecode(res.body));
+  final config = GameConfig.fromJson(jsonDecode(res.body));
+  ref.read(socketHandlerProvider.notifier).init(config.pixels);
+  return config;
 }

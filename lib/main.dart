@@ -3,6 +3,24 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:uwu_pixel_client/provider/game_config.dart';
 import 'package:uwu_pixel_client/provider/socket_handler.dart';
 
+extension HexColor on Color {
+  /// shamelessly stolen from https://stackoverflow.com/questions/50081213/how-do-i-use-hexadecimal-color-strings-in-flutter
+  /// String is in the format "aabbcc" or "ffaabbcc" with an optional leading "#".
+  static Color fromHex(String hexString) {
+    final buffer = StringBuffer();
+    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+    buffer.write(hexString.replaceFirst('#', ''));
+    return Color(int.parse(buffer.toString(), radix: 16));
+  }
+
+  /// Prefixes a hash sign if [leadingHashSign] is set to `true` (default is `true`).
+  String toHex({bool leadingHashSign = true}) => '${leadingHashSign ? '#' : ''}'
+      '${alpha.toRadixString(16).padLeft(2, '0')}'
+      '${red.toRadixString(16).padLeft(2, '0')}'
+      '${green.toRadixString(16).padLeft(2, '0')}'
+      '${blue.toRadixString(16).padLeft(2, '0')}';
+}
+
 void main() {
   runApp(const ProviderScope(child: App()));
 }
@@ -48,37 +66,54 @@ class Game extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final socketHandler = ref.watch(socketHandlerProvider.notifier);
-    final pixels = ref.watch(socketHandlerProvider);
     final config = ref.watch(gameConfigProvider);
-
-    void onTap() {
-      socketHandler.colorPixel(Pixel(null, 4, 3, "#ff0000"));
-    }
-
-    config.whenData((c) => print(c.toJson().toString()));
-
-    // config.when(
-    //   loading: Loader(),
-    //   data: GameBoard(),
-    //   error: Loader(),
-    // );
 
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
       ),
-      body: Center(
-        child: Column(
-          children: [
-            ...pixels.map((p) => Text(p.toJson().toString())),
-            TextButton(
-              onPressed: onTap,
-              child: const Text('Test'),
-            ),
-          ],
-        ),
+      body: config.when(
+        data: (config) => GameBoard(config: config),
+        error: (_, __) => const Loader(),
+        loading: () => const Loader(),
       ),
     );
   }
+}
+
+class GameBoard extends ConsumerWidget {
+  final GameConfig config;
+  const GameBoard({super.key, required this.config});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final socketHandler = ref.watch(socketHandlerProvider.notifier);
+    final pixels = ref.watch(socketHandlerProvider);
+
+    void onTap() {
+      socketHandler.colorPixel(Pixel(null, 4, 3, "#ff0000"));
+    }
+
+    return CustomPaint(
+      painter: GameBoardPainter(pixels: pixels),
+    );
+  }
+}
+
+class GameBoardPainter extends CustomPainter {
+  final List<Pixel> pixels;
+
+  GameBoardPainter({required this.pixels});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final pixel in pixels) {
+      canvas.drawRect(
+          Rect.fromLTWH(pixel.x.toDouble(), pixel.y.toDouble(), 20, 20),
+          Paint()..color = HexColor.fromHex(pixel.color));
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
