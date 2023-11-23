@@ -28,7 +28,8 @@ class GameConfig {
 /// get the game config at startup from the server
 @riverpod
 Future<GameConfig> gameConfig(GameConfigRef ref) async {
-  final res = await http.get(Uri.parse('http://localhost:8080/initial_load'));
+  final res = await http.get(Uri.parse('http://localhost:8080/initial_load'),
+      headers: {"Access-Control-Allow-Origin": "*"});
   final config = GameConfig.fromJson(jsonDecode(res.body));
   ref.read(socketHandlerProvider.notifier).init(config.pixels);
   return config;
