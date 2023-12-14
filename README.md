@@ -1,16 +1,32 @@
 # uwu_pixel_client
 
-A new Flutter project.
+![demo](assets/demo.gif)
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+# Run the project
 
-A few resources to get you started if this is your first Flutter project:
+#### UPDATE DOCKERFILE
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+First start the server
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+With the dockerfile just use those two commands :
+
+```bash
+docker build -t uwu_client .
+docker run -it -p 8090:80 --rm --name uwu_client uwu_client 
+```
+
+
+go to localhost:8090 to run a client
+
+
+then :
+```
+flutter pub get
+dart run build_runner build
+flutter run # --release if you want
+```
+
+
+# Note
+Grid size has been reduced for visibility since I didn't implemented a zoom but should work as fine with a bigger one like 1000x700
